@@ -1,0 +1,212 @@
+<html>
+	<head>
+		<title>snake</title>
+	</head>
+	<body>
+		<p id="scor">0</p>		
+		<canvas id="cnv" width="500" height="500"></canvas>
+		<p id="play">▶</p>
+		<p id="reload">↻</p>
+		
+	</body>
+	<style>
+		canvas{
+			display: block;
+			margin:auto;
+			margin-top:10px;
+			border:1px solid black;
+			background:black;
+		}
+		#play{
+			margin:auto;
+			padding:10px;
+			color: black;
+			font-size: 25px;
+			font-family: sans-serif;
+			text-align: center;
+			cursor: pointer;
+		}
+		#play:hover{
+			font-size: 27px;
+		}
+		#reload:hover{
+			font-size: 27px;
+		}
+		#reload{
+			margin:auto;
+			padding:10px;
+			font-family: sans-serif;
+			font-size:25px;
+			text-align:center;
+			display:none;
+			cursor:pointer;
+		}
+		#scor{
+			margin:auto;
+			text-align:center;
+			font-size:40px;
+			font-family: sans-serif;
+		}
+	</style>
+	<script>
+		//snake coordinats
+		let snakeCoor=[			
+			{x:190,y:250},
+			{x:180,y:250},
+			{x:170,y:250},
+		]
+		//horizontal and vertical  movement
+		let speedX=10
+		let speedY=0
+		//food coordinates
+		let foodX
+		let foodY
+		//scor
+		let scor=0
+		
+   		//part 1: get the canvas id
+		const getWindow=document.getElementById("cnv")
+		//set the canvas context is 2d
+		var snake=getWindow.getContext("2d")
+		//part 2: create the Game class
+		class Game{
+			constructor(){
+			}
+			createSnake(coord){
+				snake.fillStyle="white"
+				snake.storkestyle="white"
+				snake.fillRect(coord.x,coord.y,10,10)
+				
+				
+			}
+			//create canvas 
+			canvas(){
+				snake.fillStyle="black"
+				snake.strokestyle="black"
+				snake.fillRect(0,0,getWindow.width,getWindow.height)
+				snake.strokeRect(0,0,getWindow.width,getWindow.height)
+			}
+			//create food
+			createFood(){
+				snake.fillStyle="white"
+				snake.strokestyle="white"
+				snake.fillRect(foodX,foodY,10,10)
+				snake.strokeRect(foodX,foodY,10,10)	
+			}
+			//random food
+			randomFood(x,y){
+				return Math.round((Math.random()*(x-y)+y)/10)*10
+			}
+			displayFood(){
+				foodX=this.randomFood(0,getWindow.width-10)
+				foodY=this.randomFood(0,getWindow.height-10)
+				console.log(foodX,foodY)
+			}
+			snakeList(){
+			 	snakeCoor.forEach(this.createSnake)
+			}
+			//if snake thouc border,game over
+			border_end(){
+				for(let i=3;i<snakeCoor.length;i+=1){
+					//if the collision snake length,game over 
+					if(snakeCoor[0].x==snakeCoor[i].x&&snakeCoor[0].y==snakeCoor[i].y){ 
+						return true
+					}
+				}
+				let left=snakeCoor[0].x<0//x=-1,-2,-3,-4...
+				let right=snakeCoor[0].x>getWindow.width-10//x=1,2,3,4...(-10)
+				let up=snakeCoor[0].y<0//this same
+				let down=snakeCoor[0].y>getWindow.height-10//this same
+				
+				return left||right||up||down
+				
+			}
+			snakeMoveAuto(){
+				var move={x:snakeCoor[0].x+speedX,y:snakeCoor[0].y+speedY}
+				snakeCoor.unshift(move)
+				let len_snake=snakeCoor[0].x===foodX&&snakeCoor[0].y===foodY
+				if(len_snake){
+					scor+=1
+					this.displayFood()
+					document.getElementById("scor").innerText=scor
+					
+				}else{
+					snakeCoor.pop()
+				}
+			}
+			snakeMoveKey(event){
+				var A_KEY=97
+				var D_KEY=100
+				var W_KEY=119
+				var S_KEY=115
+				//get key
+				const key=event.keyCode
+				
+				if(key==A_KEY){
+					speedX=-5
+					speedY=0
+				}
+				if(key===D_KEY){
+					speedX=5
+					speedY=0
+				}
+				if(key==W_KEY){
+					speedY=-5
+					speedX=0
+				}
+				if(key==S_KEY){
+					speedY=5
+					speedX=0
+				}
+			
+			}
+			//snake move keyboard
+			get keyboard(){
+				//get event keypress
+				document.addEventListener("keypress",this.snakeMoveKey)
+			}
+			//play button
+			play(){
+				var btn=document.getElementById("play")
+				btn.style.display="block"
+				this.snakeList()
+				btn.addEventListener("click",()=>{
+					//if play click ,start game and 
+					//be the play none button 
+					this.main
+					btn.style.display="none"
+				})
+			}
+			//reload button
+			get reload(){
+				var repat=document.getElementById("reload")
+				repat.style.display="block"
+				repat.addEventListener("click",()=>{
+					location.reload()
+					
+				})
+			}
+			get main(){
+				if(this.border_end()){
+					//the game start reload
+					this.reload
+					return true
+				}
+				setTimeout(()=>{
+					this.canvas()
+					this.createFood()
+					this.snakeMoveAuto()
+					this.snakeList()
+					this.main
+				},100)
+				
+			}
+			
+		}
+		var gamer=new Game()
+		gamer.displayFood()
+		gamer.keyboard
+		gamer.play()
+				
+	</script>
+<html>
